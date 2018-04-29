@@ -1,8 +1,11 @@
 package com.udacity.sandwichclub;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -11,6 +14,7 @@ import com.squareup.picasso.Picasso;
 import com.udacity.sandwichclub.model.Sandwich;
 import com.udacity.sandwichclub.utils.JsonUtils;
 
+import org.json.JSONException;
 import org.w3c.dom.Text;
 
 import static java.lang.String.join;
@@ -25,6 +29,7 @@ public class DetailActivity extends AppCompatActivity {
     private TextView ingredientsTv ;
     private TextView descriptionTv;
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,7 +56,12 @@ public class DetailActivity extends AppCompatActivity {
 
         String[] sandwiches = getResources().getStringArray(R.array.sandwich_details);
         String json = sandwiches[position];
-        Sandwich sandwich = JsonUtils.parseSandwichJson(json);
+        Sandwich sandwich = null;
+        try {
+            sandwich = JsonUtils.parseSandwichJson(json);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         if (sandwich == null) {
             // Sandwich data unavailable
             closeOnError();
@@ -61,6 +71,8 @@ public class DetailActivity extends AppCompatActivity {
         populateUI(sandwich);
         Picasso.with(this)
                 .load(sandwich.getImage())
+                .placeholder(R.drawable.loading_animation)
+                .error(R.drawable.ic_android_black_24dp)
                 .into(ingredientsIv);
 
         setTitle(sandwich.getMainName());
@@ -72,9 +84,9 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void populateUI(Sandwich sandwich) {
-        alsoKnownTv.setText(join(",",sandwich.getAlsoKnownAs()));
+        alsoKnownTv.setText(TextUtils.join(",",sandwich.getAlsoKnownAs()));
         originTv.setText(sandwich.getPlaceOfOrigin());
-        ingredientsTv.setText(join(",",sandwich.getIngredients()));
+        ingredientsTv.setText(TextUtils.join(",",sandwich.getIngredients()));
         descriptionTv.setText(sandwich.getDescription());
     }
 }
