@@ -73,6 +73,7 @@ public class DetailActivity extends AppCompatActivity {
                 .load(sandwich.getImage())
                 .placeholder(R.drawable.loading_animation)
                 .error(R.drawable.ic_android_black_24dp)
+                .fit()
                 .into(ingredientsIv);
 
         setTitle(sandwich.getMainName());
